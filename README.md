@@ -10,10 +10,10 @@ Right now this library only has SPI support. I still need to clean up the code a
 Video demo:
 https://streamable.com/ivmgfz
 
+Application for the 3D animation: https://github.com/ZaneL/quaternion_sensor_3d_nodejs
+
 ![alt text](https://i.ibb.co/VVMfQk9/image.png)
 ![alt text](https://i.ibb.co/SmM00g1/image.png)
-
-
 
 The first example **ReadSensorValues** reads the various outputs on the ICM-20948 and writes their values to the USB serial port. The output frequency of each sensor is set to its respective minimum. For the quaternion output that is 50Hz, for the other three it is 1Hz.
 
@@ -83,7 +83,7 @@ The first example **ReadSensorValues** reads the various outputs on the ICM-2094
       }
     }
 
-The second example **QuaternionAnimation** enables only the quaternion output and sets it to the maximum possible output frequency. This output is written to the USB serial port and I've written a simple nodejs application that uses this data to plot the rotation of a 3D object in real time.
+The second example **QuaternionAnimation** enables only the quaternion output and sets it to the maximum possible output frequency. This output is written to the USB serial port and I've written a simple nodejs application that uses this data to plot the rotation of a 3D object in real time. That application can be found here: https://github.com/ZaneL/quaternion_sensor_3d_nodejs
 
     #include <Teensy-ICM-20948.h>
     
