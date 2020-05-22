@@ -5,7 +5,7 @@ None of the ICM-20948 Arduino libraries contained support for the DMP (Digital M
 
 The Invensense code loads the image file **icm20948_img.dmp3a.h** into the FPGA located on the ICM-20948. This FPGA is what does the onboard sensor fusion calculations to determine the quaternions.
 
-Right now this library only has SPI support. I can add I2C support if there is any interest. It should also be easy enough to add step-counter and gesture functionality if anyone is interested. I still need to clean up the code a bit more, but this should be a good start.
+Right now this library only has SPI support. I still need to clean up the code a bit more, but this should be a good start.
 
 The first example **ReadSensorValues** reads the various outputs on the ICM-20948 and writes their values to the USB serial port. The output frequency of each sensor is set to its respective minimum. For the quaternion output that is 50Hz, for the other three it is 1Hz.
 
