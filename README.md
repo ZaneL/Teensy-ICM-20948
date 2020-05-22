@@ -11,6 +11,7 @@ Video demo:
 https://streamable.com/ivmgfz
 
 Application for the 3D animation: https://github.com/ZaneL/quaternion_sensor_3d_nodejs
+
 Use the included example named **QuaternionAnimation** with that 3D app.
 
 ![alt text](https://i.ibb.co/VVMfQk9/image.png)
