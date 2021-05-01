@@ -7,6 +7,7 @@
 
 typedef struct {
   int cs_pin;
+  int spi_speed;
   int mode;
   bool enable_gyroscope;
   bool enable_accelerometer;
@@ -16,7 +17,7 @@ typedef struct {
   int accelerometer_frequency;
   int magnetometer_frequency;
   int quaternion_frequency;
-  
+
 } TeensyICM20948Settings;
 
 /*************************************************************************
@@ -27,20 +28,20 @@ class TeensyICM20948
 {
   public:
 
-      TeensyICM20948();
-      
-      void init(TeensyICM20948Settings settings);
-      void task();
-      
-      bool gyroDataIsReady();
-      bool accelDataIsReady();
-      bool magDataIsReady();
-      bool quatDataIsReady();
-      
-      void readGyroData(float *x, float *y, float *z);
-      void readAccelData(float *x, float *y, float *z);
-      void readMagData(float *x, float *y, float *z);
-      void readQuatData(float *w, float *x, float *y, float *z);
+    TeensyICM20948();
+
+    void init(TeensyICM20948Settings settings);
+    void task();
+
+    bool gyroDataIsReady();
+    bool accelDataIsReady();
+    bool magDataIsReady();
+    bool quatDataIsReady();
+
+    void readGyroData(float *x, float *y, float *z);
+    void readAccelData(float *x, float *y, float *z);
+    void readMagData(float *x, float *y, float *z);
+    void readQuatData(float *w, float *x, float *y, float *z);
 };
 
 

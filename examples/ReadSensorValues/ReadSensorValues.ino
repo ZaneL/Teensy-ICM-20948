@@ -17,6 +17,7 @@ TeensyICM20948 icm20948;
 TeensyICM20948Settings icmSettings =
 {
   .cs_pin = 10,                  // SPI chip select pin
+  .spi_speed = 7000000,          // SPI clock speed in Hz, max speed is 7MHz
   .mode = 1,                     // 0 = low power mode, 1 = high performance mode
   .enable_gyroscope = true,      // Enables gyroscope output
   .enable_accelerometer = true,  // Enables accelerometer output
