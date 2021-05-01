@@ -10,8 +10,12 @@
 #include "SensorTypes.h"
 #include "Icm20948MPUFifoControl.h"
 
+/*************************************************************************
+  Variables
+*************************************************************************/
+
 int chipSelectPin = 10;
-int spiSpeed = 4000000;
+int spiSpeed = 7000000;
 
 float gyro_x, gyro_y, gyro_z;
 bool gyro_data_ready = false;
@@ -31,7 +35,6 @@ bool quat_data_ready = false;
 
 int idd_io_hal_read_reg(void * context, uint8_t reg, uint8_t * rbuffer, uint32_t rlen)
 {
-  //return spi_master_transfer_rx(NULL, reg, rbuffer, rlen);
   (void)context;
 
   SPI.beginTransaction(SPISettings(spiSpeed, MSBFIRST, SPI_MODE0));
@@ -53,7 +56,6 @@ int idd_io_hal_read_reg(void * context, uint8_t reg, uint8_t * rbuffer, uint32_t
 
 int idd_io_hal_write_reg(void * context, uint8_t reg, const uint8_t * wbuffer, uint32_t wlen)
 {
-  //return spi_master_transfer_tx(NULL, reg, wbuffer, wlen);
   (void)context;
 
   SPI.beginTransaction(SPISettings(spiSpeed, MSBFIRST, SPI_MODE0));
@@ -101,28 +103,33 @@ static const uint8_t dmp3_image[] = {
   Invensense Functions
 *************************************************************************/
 
-void check_rc(int rc, const char * msg_context) {
+void check_rc(int rc, const char * msg_context) 
+{
   if (rc < 0) {
     Serial.println("ICM20948 ERROR!");
     while (1);
   }
 }
 
-int load_dmp3(void) {
+int load_dmp3(void) 
+{
   int rc = 0;
   rc = inv_icm20948_load(&icm_device, dmp3_image, sizeof(dmp3_image));
   return rc;
 }
 
-void inv_icm20948_sleep_us(int us) {
+void inv_icm20948_sleep_us(int us) 
+{
   delayMicroseconds(us);
 }
 
-void inv_icm20948_sleep(int ms) {
+void inv_icm20948_sleep(int ms) 
+{
   delay(ms);
 }
 
-uint64_t inv_icm20948_get_time_us(void) {
+uint64_t inv_icm20948_get_time_us(void) 
+{
   return micros();
 }
 
@@ -131,7 +138,8 @@ inv_bool_t interface_is_SPI(void)
   return true;
 }
 
-static void icm20948_apply_mounting_matrix(void) {
+static void icm20948_apply_mounting_matrix(void) 
+{
   int ii;
 
   for (ii = 0; ii < INV_ICM20948_SENSOR_MAX; ii++) {
@@ -139,7 +147,8 @@ static void icm20948_apply_mounting_matrix(void) {
   }
 }
 
-static void icm20948_set_fsr(void) {
+static void icm20948_set_fsr(void) 
+{
   inv_icm20948_set_fsr(&icm_device, INV_ICM20948_SENSOR_RAW_ACCELEROMETER, (const void *)&cfg_acc_fsr);
   inv_icm20948_set_fsr(&icm_device, INV_ICM20948_SENSOR_ACCELEROMETER, (const void *)&cfg_acc_fsr);
   inv_icm20948_set_fsr(&icm_device, INV_ICM20948_SENSOR_RAW_GYROSCOPE, (const void *)&cfg_gyr_fsr);
@@ -199,7 +208,8 @@ int icm20948_sensor_setup(void)
   return 0;
 }
 
-static uint8_t icm20948_get_grv_accuracy(void) {
+static uint8_t icm20948_get_grv_accuracy(void) 
+{
   uint8_t accel_accuracy;
   uint8_t gyro_accuracy;
 
@@ -231,7 +241,8 @@ static uint8_t convert_to_generic_ids[INV_ICM20948_SENSOR_MAX] = {
   INV_SENSOR_TYPE_B2S
 };
 
-void build_sensor_event_data(void * context, enum inv_icm20948_sensor sensortype, uint64_t timestamp, const void * data, const void *arg) {
+void build_sensor_event_data(void * context, enum inv_icm20948_sensor sensortype, uint64_t timestamp, const void * data, const void *arg) 
+{
   float raw_bias_data[6];
   inv_sensor_event_t event;
   (void)context;
@@ -240,7 +251,8 @@ void build_sensor_event_data(void * context, enum inv_icm20948_sensor sensortype
   memset((void *)&event, 0, sizeof(event));
   event.sensor = sensor_id;
   event.timestamp = timestamp;
-  switch (sensor_id) {
+  switch (sensor_id) 
+  {
     case INV_SENSOR_TYPE_UNCAL_GYROSCOPE:
       memcpy(raw_bias_data, data, sizeof(raw_bias_data));
       memcpy(event.data.gyr.vect, &raw_bias_data[0], sizeof(event.data.gyr.vect));
@@ -342,55 +354,55 @@ static enum inv_icm20948_sensor idd_sensortype_conversion(int sensor)
   switch (sensor)
   {
     case INV_SENSOR_TYPE_RAW_ACCELEROMETER:
-          return INV_ICM20948_SENSOR_RAW_ACCELEROMETER;
-      case INV_SENSOR_TYPE_RAW_GYROSCOPE:
-        return INV_ICM20948_SENSOR_RAW_GYROSCOPE;
-      case INV_SENSOR_TYPE_ACCELEROMETER:
-        return INV_ICM20948_SENSOR_ACCELEROMETER;
-      case INV_SENSOR_TYPE_GYROSCOPE:
-        return INV_ICM20948_SENSOR_GYROSCOPE;
-      case INV_SENSOR_TYPE_UNCAL_MAGNETOMETER:
-        return INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED;
-      case INV_SENSOR_TYPE_UNCAL_GYROSCOPE:
-        return INV_ICM20948_SENSOR_GYROSCOPE_UNCALIBRATED;
-      case INV_SENSOR_TYPE_BAC:
-        return INV_ICM20948_SENSOR_ACTIVITY_CLASSIFICATON;
-      case INV_SENSOR_TYPE_STEP_DETECTOR:
-        return INV_ICM20948_SENSOR_STEP_DETECTOR;
-      case INV_SENSOR_TYPE_STEP_COUNTER:
-        return INV_ICM20948_SENSOR_STEP_COUNTER;
-      case INV_SENSOR_TYPE_GAME_ROTATION_VECTOR:
-        return INV_ICM20948_SENSOR_GAME_ROTATION_VECTOR;
-      case INV_SENSOR_TYPE_ROTATION_VECTOR:
-        return INV_ICM20948_SENSOR_ROTATION_VECTOR;
-      case INV_SENSOR_TYPE_GEOMAG_ROTATION_VECTOR:
-        return INV_ICM20948_SENSOR_GEOMAGNETIC_ROTATION_VECTOR;
-      case INV_SENSOR_TYPE_MAGNETOMETER:
-        return INV_ICM20948_SENSOR_GEOMAGNETIC_FIELD;
-      case INV_SENSOR_TYPE_SMD:
-        return INV_ICM20948_SENSOR_WAKEUP_SIGNIFICANT_MOTION;
-      case INV_SENSOR_TYPE_PICK_UP_GESTURE:
-        return INV_ICM20948_SENSOR_FLIP_PICKUP;
-      case INV_SENSOR_TYPE_TILT_DETECTOR:
-        return INV_ICM20948_SENSOR_WAKEUP_TILT_DETECTOR;
-      case INV_SENSOR_TYPE_GRAVITY:
-        return INV_ICM20948_SENSOR_GRAVITY;
-      case INV_SENSOR_TYPE_LINEAR_ACCELERATION:
-        return INV_ICM20948_SENSOR_LINEAR_ACCELERATION;
-      case INV_SENSOR_TYPE_ORIENTATION:
-        return INV_ICM20948_SENSOR_ORIENTATION;
-      case INV_SENSOR_TYPE_B2S:
-        return INV_ICM20948_SENSOR_B2S;
-      default:
-        return INV_ICM20948_SENSOR_MAX;
-    }//switch
-  }//enum sensortyp_conversion
+      return INV_ICM20948_SENSOR_RAW_ACCELEROMETER;
+    case INV_SENSOR_TYPE_RAW_GYROSCOPE:
+      return INV_ICM20948_SENSOR_RAW_GYROSCOPE;
+    case INV_SENSOR_TYPE_ACCELEROMETER:
+      return INV_ICM20948_SENSOR_ACCELEROMETER;
+    case INV_SENSOR_TYPE_GYROSCOPE:
+      return INV_ICM20948_SENSOR_GYROSCOPE;
+    case INV_SENSOR_TYPE_UNCAL_MAGNETOMETER:
+      return INV_ICM20948_SENSOR_MAGNETIC_FIELD_UNCALIBRATED;
+    case INV_SENSOR_TYPE_UNCAL_GYROSCOPE:
+      return INV_ICM20948_SENSOR_GYROSCOPE_UNCALIBRATED;
+    case INV_SENSOR_TYPE_BAC:
+      return INV_ICM20948_SENSOR_ACTIVITY_CLASSIFICATON;
+    case INV_SENSOR_TYPE_STEP_DETECTOR:
+      return INV_ICM20948_SENSOR_STEP_DETECTOR;
+    case INV_SENSOR_TYPE_STEP_COUNTER:
+      return INV_ICM20948_SENSOR_STEP_COUNTER;
+    case INV_SENSOR_TYPE_GAME_ROTATION_VECTOR:
+      return INV_ICM20948_SENSOR_GAME_ROTATION_VECTOR;
+    case INV_SENSOR_TYPE_ROTATION_VECTOR:
+      return INV_ICM20948_SENSOR_ROTATION_VECTOR;
+    case INV_SENSOR_TYPE_GEOMAG_ROTATION_VECTOR:
+      return INV_ICM20948_SENSOR_GEOMAGNETIC_ROTATION_VECTOR;
+    case INV_SENSOR_TYPE_MAGNETOMETER:
+      return INV_ICM20948_SENSOR_GEOMAGNETIC_FIELD;
+    case INV_SENSOR_TYPE_SMD:
+      return INV_ICM20948_SENSOR_WAKEUP_SIGNIFICANT_MOTION;
+    case INV_SENSOR_TYPE_PICK_UP_GESTURE:
+      return INV_ICM20948_SENSOR_FLIP_PICKUP;
+    case INV_SENSOR_TYPE_TILT_DETECTOR:
+      return INV_ICM20948_SENSOR_WAKEUP_TILT_DETECTOR;
+    case INV_SENSOR_TYPE_GRAVITY:
+      return INV_ICM20948_SENSOR_GRAVITY;
+    case INV_SENSOR_TYPE_LINEAR_ACCELERATION:
+      return INV_ICM20948_SENSOR_LINEAR_ACCELERATION;
+    case INV_SENSOR_TYPE_ORIENTATION:
+      return INV_ICM20948_SENSOR_ORIENTATION;
+    case INV_SENSOR_TYPE_B2S:
+      return INV_ICM20948_SENSOR_B2S;
+    default:
+      return INV_ICM20948_SENSOR_MAX;
+  }
+}
 
-  /*************************************************************************
-    Class Functions
-  *************************************************************************/
+/*************************************************************************
+  Class Functions
+*************************************************************************/
 
-  TeensyICM20948::TeensyICM20948()
+TeensyICM20948::TeensyICM20948()
 {
 }
 
@@ -427,13 +439,13 @@ void TeensyICM20948::init(TeensyICM20948Settings settings)
 
   if (icm_device.selftest_done && !icm_device.offset_done)
   {
-    // If we've run selftes and not already set the offset.
+    // If we've run self test and not already set the offset.
     inv_icm20948_set_offset(&icm_device, unscaled_bias);
     icm_device.offset_done = 1;
   }
 
-  // Now that Icm20948 device was initialized, we can proceed with DMP image loading
-  // This step is mandatory as DMP image are not store in non volatile memory
+  // Now that Icm20948 device is initialized, we can proceed with DMP image loading
+  // This step is mandatory as DMP image is not stored in non volatile memory
   rc += load_dmp3();
   check_rc(rc, "Error sensor_setup/DMP loading.");
 
